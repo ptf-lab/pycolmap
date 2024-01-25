@@ -52,6 +52,7 @@ py::object PyEstimateAndRefineAbsolutePose(
                           points3D,
                           &cam_from_world,
                           &camera,
+                          false,
                           return_covariance ? &covariance : nullptr)) {
     return failure;
   }
@@ -70,7 +71,9 @@ py::object PyRefineAbsolutePose(
     const std::vector<Eigen::Vector3d>& points3D,
     const PyInlierMask& inlier_mask,
     Camera& camera,
-    const AbsolutePoseRefinementOptions& refinement_options) {
+    const AbsolutePoseRefinementOptions& refinement_options,
+    bool freeze_tvec
+    ) {
   SetPRNGSeed(0);
   THROW_CHECK_EQ(points2D.size(), points3D.size());
   THROW_CHECK_EQ(inlier_mask.size(), points2D.size());
@@ -86,7 +89,8 @@ py::object PyRefineAbsolutePose(
                           points2D,
                           points3D,
                           &refined_cam_from_world,
-                          &camera)) {
+                          &camera,
+                          freeze_tvec)) {
     return failure;
   }
 
@@ -165,5 +169,6 @@ void BindAbsolutePoseEstimator(py::module& m) {
         "inlier_mask"_a,
         "camera"_a,
         "refinement_options"_a = ref_options,
+        "freeze_tvec"_a = false,
         "Non-linear refinement of absolute pose.");
 }
