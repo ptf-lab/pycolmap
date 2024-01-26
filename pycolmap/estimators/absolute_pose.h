@@ -23,7 +23,8 @@ py::object PyEstimateAndRefineAbsolutePose(
     Camera& camera,
     const AbsolutePoseEstimationOptions& estimation_options,
     const AbsolutePoseRefinementOptions& refinement_options,
-    const bool return_covariance) {
+    const bool return_covariance,
+    bool refine) {
   SetPRNGSeed(0);
   THROW_CHECK_EQ(points2D.size(), points3D.size());
   py::object failure = py::none();
@@ -46,7 +47,8 @@ py::object PyEstimateAndRefineAbsolutePose(
 
   // Absolute pose refinement.
   Eigen::Matrix<double, 6, 6> covariance;
-  if (!RefineAbsolutePose(refinement_options,
+  if (refine){
+    if (!RefineAbsolutePose(refinement_options,
                           inlier_mask,
                           points2D,
                           points3D,
@@ -55,7 +57,9 @@ py::object PyEstimateAndRefineAbsolutePose(
                           false,
                           return_covariance ? &covariance : nullptr)) {
     return failure;
+    }
   }
+
 
   py::gil_scoped_acquire acquire;
   py::dict success_dict("cam_from_world"_a = cam_from_world,
@@ -159,6 +163,7 @@ void BindAbsolutePoseEstimator(py::module& m) {
         "estimation_options"_a = est_options,
         "refinement_options"_a = ref_options,
         "return_covariance"_a = false,
+        "refine"_a = true,
         "Absolute pose estimation with non-linear refinement.");
 
   m.def("pose_refinement",
