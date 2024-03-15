@@ -4,7 +4,7 @@ project(${SKBUILD_PROJECT_NAME} VERSION ${SKBUILD_PROJECT_VERSION})
 set(CUDACXX /usr/local/cuda/bin/nvcc)
 set(CMAKE_CUDA_ARCHITECTURES 86 89)
 
-set(CMAKE_CUDA_ARCHITECTURES "native")
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Some fixes for the Glog library.
     add_definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
